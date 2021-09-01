@@ -34,7 +34,7 @@ tokenized_datasets = datasets.map(
     num_proc=8,
     batched=True,
     batch_size=128,
-    remove_columns=["id", "text", "reply"])
+    remove_columns=["text", "reply"])
 
 training_args = TrainingArguments(
     "test-clm",
