@@ -24,16 +24,14 @@ datasets = load_dataset("parquet", data_files={"train": train_files,
 datasets = datasets.filter(lambda x: x['text'] is not None and x['reply'] is not None)
 
 def tokenize_function(examples):
-    result = tokenizer(examples["text"] + examples["reply"],
-                       padding="max_length", truncation=True, max_length=64)
-    result["labels"] = result["input_ids"].copy()
+    result = tokenizer(examples["text"],
+                       padding="max_length", truncation=True, max_length=128)
     return result
 
 tokenized_datasets = datasets.map(
     tokenize_function,
-    num_proc=8,
+    num_proc=4,
     batched=True,
-    batch_size=128,
     remove_columns=["text", "reply"])
 
 training_args = TrainingArguments(
