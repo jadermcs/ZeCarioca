@@ -16,7 +16,7 @@ checkpoint = "pierreguillou/gpt2-small-portuguese"
 tokenizer = GPT2Tokenizer.from_pretrained(checkpoint)
 model = GPT2LMHeadModel.from_pretrained(checkpoint)
 
-train_files, validation_files = train_test_split(glob.glob(files)[:10],
+train_files, validation_files = train_test_split(glob.glob(files)[:2],
                                                  test_size=0.1)
 
 datasets = load_dataset("parquet", data_files={"train": train_files,
@@ -25,6 +25,7 @@ datasets = datasets.filter(lambda x: x['text'] is not None and x['reply'] is not
 
 special_tokens = ["<sos_u>", "<eos_u>", "<sos_r>", "<eos_r>"]
 tokenizer.add_special_tokens({'additional_special_tokens': special_tokens})
+model.resize_token_embeddings(len(tokenizer))
 
 def add_tokens(examples):
     examples["text"] = "<sos_u> "+examples["text"]+" <eos_u>"
