@@ -3,6 +3,7 @@ datasets
 scipy
 pandas
 tqdm
+wandb
 torchmetrics>=0.3
 transformers==4.9.0
 torch>=1.9

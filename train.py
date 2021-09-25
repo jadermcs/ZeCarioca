@@ -67,11 +67,12 @@ lm_datasets = tokenized_datasets.map(
 training_args = TrainingArguments(
     "test-clm",
     evaluation_strategy="epoch",
-    per_device_train_batch_size=32,
+    per_device_train_batch_size=8,
     learning_rate=2e-5,
     weight_decay=0.01,
     warmup_steps=2000,
     num_train_epochs=20,
+    report_to="wandb",
     save_strategy="epoch"
 )
 
