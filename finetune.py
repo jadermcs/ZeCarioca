@@ -38,7 +38,7 @@ training_args = TrainingArguments(
     num_train_epochs=300,
     report_to="wandb",
     run_name="connectcar-fromadrenaline-multiwoz",
-    save_strategy="no"
+    save_strategy="epoch"
 )
 
 trainer = Trainer(

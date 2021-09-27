@@ -9,7 +9,7 @@ checkpoint = path + "epoch56_trloss0.40_gpt2"
 tokenizer = GPT2Tokenizer.from_pretrained(checkpoint)
 model = GPT2LMHeadModel.from_pretrained(checkpoint)
 
-with open("data/creditos_placa_errada_2_3_7.json") as fin:
+with open("data/creditos_placa_errada_completo.json") as fin:
     data = json.load(fin)
     tokens = data['ontology']['intents'] + data['ontology']['actions']
     tokenizer.add_special_tokens({'additional_special_tokens': tokens})
