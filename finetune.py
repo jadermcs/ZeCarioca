@@ -7,7 +7,8 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from transformers import Trainer, TrainingArguments
 from datasets import load_dataset, load_metric
 
-checkpoint = "models/adrenaline_multiwoz/connectcar_tokens"
+# checkpoint = "models/adrenaline_multiwoz/connectcar_tokens"
+checkpoint = "pierreguillou/gpt2-small-portuguese"
 tokenizer = GPT2Tokenizer.from_pretrained(checkpoint)
 model = GPT2LMHeadModel.from_pretrained(checkpoint)
 datasets = load_dataset("json", data_files={"train":"data/process.train.json",
@@ -35,9 +36,10 @@ training_args = TrainingArguments(
     learning_rate=2e-5,
     weight_decay=0.01,
     warmup_steps=200,
-    num_train_epochs=300,
+    num_train_epochs=250,
     report_to="wandb",
-    run_name="connectcar-fromadrenaline-multiwoz",
+    run_name="connectcar-frompierre",
+    # run_name="connectcar-fromadrenaline-multiwoz",
     save_strategy="epoch"
 )
 

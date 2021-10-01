@@ -13,7 +13,7 @@ random.shuffle(files)
 frames = []
 counter = 0
 
-for filein in tqdm.tqdm(files):
+for filein in tqdm.tqdm(files[:100000]):
     counter += 1
     df = pd.read_csv(filein, delimiter='\t', quoting=3, header=None,
                      names=["timestamp", "id", "text"])

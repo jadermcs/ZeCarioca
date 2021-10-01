@@ -11,7 +11,7 @@ model = GPT2LMHeadModel.from_pretrained(checkpoint)
 
 with open("data/creditos_placa_errada_completo.json") as fin:
     data = json.load(fin)
-    tokens = data['ontology']['intents'] + data['ontology']['actions']
+    tokens = data['ontology']['intents'] + data['ontology']['actions'] + ["<sos_u>", "<sos_b>", "<sos_a>", "<sos_r>", "<eos_u>", "<eos_b>", "<eos_a>", "<eos_r>"]
     tokenizer.add_special_tokens({'additional_special_tokens': tokens})
     model.resize_token_embeddings(len(tokenizer))
     tokenizer.save_pretrained(path+"connectcar_tokens")
@@ -21,7 +21,7 @@ with open("data/creditos_placa_errada_completo.json") as fin:
         dialog = ''
         for turn in range(len(d['turns'][1:])//2):
             t = d['turns'][turn*2+1:turn*2+3]
-            utterance = f"<sos_u> {t[0]['utterance']} <oes_u>"
+            utterance = f"<sos_u> {t[0]['utterance']} <eos_u>"
             intents = []
             for slot in t[0]['slot-values']:
                 if isinstance(t[0]['slot-values'][slot], list):
@@ -33,7 +33,7 @@ with open("data/creditos_placa_errada_completo.json") as fin:
             belief = " ".join(bs)
             a = ["<sos_a>"] + [t[1]['action']] + ["<eos_a>"]
             action = " ".join(a)
-            response = f"<sos_r> {t[1]['utterance_delex']} <oes_r>"
+            response = f"<sos_r> {t[1]['utterance_delex']} <eos_r>"
             dialog += utterance+belief+action+response
         dialogues.append({'id':d['id'], 'text':dialog})
     random.shuffle(dialogues)
