@@ -4,23 +4,15 @@ import random
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
 random.seed(42)
-path = "models/adrenaline_multiwoz/"
-checkpoint = path + "epoch56_trloss0.40_gpt2"
-tokenizer = GPT2Tokenizer.from_pretrained(checkpoint)
-model = GPT2LMHeadModel.from_pretrained(checkpoint)
 
-with open("data/creditos_placa_errada_completo.json") as fin:
+with open("synthetic.augmented.json") as fin:
     data = json.load(fin)
     tokens = data['ontology']['intents'] + data['ontology']['actions'] + ["<sos_u>", "<sos_b>", "<sos_a>", "<sos_r>", "<eos_u>", "<eos_b>", "<eos_a>", "<eos_r>"]
-    tokenizer.add_special_tokens({'additional_special_tokens': tokens})
-    model.resize_token_embeddings(len(tokenizer))
-    tokenizer.save_pretrained(path+"connectcar_tokens")
-    model.save_pretrained(path+"connectcar_tokens")
     dialogues = []
     for d in tqdm.tqdm(data['dialogs']):
         dialog = ''
-        for turn in range(len(d['turns'][1:])//2):
-            t = d['turns'][turn*2+1:turn*2+3]
+        for turn in range(len(d['turns'])//2):
+            t = d['turns'][turn*2:turn*2+2]
             utterance = f"<sos_u> {t[0]['utterance']} <eos_u>"
             intents = []
             for slot in t[0]['slot-values']:
@@ -39,10 +31,16 @@ with open("data/creditos_placa_errada_completo.json") as fin:
     random.shuffle(dialogues)
     f1 = open("data/process.train.json", "w")
     f2 = open("data/process.valid.json", "w")
+    f3 = open("data/ontology.json", "w")
+    json.dump(tokens, f3)
+    c1, c2 = 0, 0
     for i, line in enumerate(dialogues):
-        if i <= .7*len(dialogues):
+        if line['id'] % 10:
             print(json.dumps(line), file=f1)
+            c1 +=1
         else:
             print(json.dumps(line), file=f2)
+            c2 +=1
+    print("train size:", c1, "test size:", c2)
     f1.close()
     f2.close()

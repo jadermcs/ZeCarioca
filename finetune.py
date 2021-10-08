@@ -1,4 +1,5 @@
 import math
+import json
 import tqdm
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -7,10 +8,15 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from transformers import Trainer, TrainingArguments
 from datasets import load_dataset, load_metric
 
-# checkpoint = "models/adrenaline_multiwoz/connectcar_tokens"
-checkpoint = "pierreguillou/gpt2-small-portuguese"
+checkpoint = "models/adrenaline_multiwoz/epoch56_trloss0.40_gpt2"
+# checkpoint = "pierreguillou/gpt2-small-portuguese"
+with open("data/ontology.json") as fin:
+    tokens = json.load(fin)
+
 tokenizer = GPT2Tokenizer.from_pretrained(checkpoint)
 model = GPT2LMHeadModel.from_pretrained(checkpoint)
+tokenizer.add_special_tokens({'additional_special_tokens': tokens})
+model.resize_token_embeddings(len(tokenizer))
 datasets = load_dataset("json", data_files={"train":"data/process.train.json",
                                             "valid":"data/process.valid.json"})
 tokenizer.pad_token = tokenizer.eos_token
@@ -35,11 +41,9 @@ training_args = TrainingArguments(
     gradient_accumulation_steps=32,
     learning_rate=2e-5,
     weight_decay=0.01,
-    warmup_steps=200,
     num_train_epochs=250,
     report_to="wandb",
-    run_name="connectcar-frompierre",
-    # run_name="connectcar-fromadrenaline-multiwoz",
+    run_name=checkpoint,
     save_strategy="epoch"
 )
 
