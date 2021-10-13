@@ -1,9 +1,7 @@
-import math
 import json
 import tqdm
 import torch
 from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import train_test_split
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from transformers import Trainer, TrainingArguments
 from datasets import load_dataset, load_metric
@@ -16,6 +14,7 @@ with open("data/ontology.json") as fin:
 tokenizer = GPT2Tokenizer.from_pretrained(checkpoint)
 model = GPT2LMHeadModel.from_pretrained(checkpoint)
 tokenizer.add_special_tokens({'additional_special_tokens': tokens})
+tokenizer.save_pretrained("models/tokenizer/")
 model.resize_token_embeddings(len(tokenizer))
 datasets = load_dataset("json", data_files={"train":"data/process.train.json",
                                             "valid":"data/process.valid.json"})
@@ -29,10 +28,14 @@ def add_tokens(examples):
 
 tokenized = datasets.map(
     add_tokens,
-    batched=True,
-    batch_size=32,
     num_proc=4,
     remove_columns=["id", "text"])
+
+def compute_metrics(pred):
+    labels = pred.label_ids
+    preds = pred.predictions.argmax(-1)
+    acc = accuracy_score(labels, preds)
+    return { 'accuracy': acc }
 
 training_args = TrainingArguments(
     "test-clm",
@@ -41,7 +44,7 @@ training_args = TrainingArguments(
     gradient_accumulation_steps=32,
     learning_rate=2e-5,
     weight_decay=0.01,
-    num_train_epochs=250,
+    num_train_epochs=100,
     report_to="wandb",
     run_name=checkpoint,
     save_strategy="epoch"
@@ -52,9 +55,10 @@ trainer = Trainer(
     args=training_args,
     train_dataset=tokenized["train"],
     eval_dataset=tokenized["valid"],
+    # compute_metrics=compute_metrics,
 )
 
 trainer.train()
 
 eval_results = trainer.evaluate()
-print(f"Perplexity: {math.exp(eval_results['eval_loss']):.2f}")
+print(f"Perplexity: {torch.exp(eval_results['eval_loss']):.2f}")
